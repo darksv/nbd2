@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using NBD2.Model;
@@ -10,10 +13,7 @@ namespace NBD2.ViewModel
     public class PersonCreateEditViewModel : BindableBase
     {
         private readonly IPersonService _personService;
-//        private readonly string _originalName;
         public PersonViewModel Person { get; set; }
-//        public string[] MotherNames { get; set; }
-//        public string[] FatherNames { get; set; }
         public Sex[] Sexes { get; } = EnumUtils.GetValues<Sex>().ToArray();
         public ICommand SaveCommand { get; }
         private Mode Mode { get; set; }
@@ -23,7 +23,6 @@ namespace NBD2.ViewModel
         {
             _personService = personService;
             SaveCommand = new RelayCommand(Save, CanSave);
-//            UpdateNames();
             Person = new PersonViewModel();
             Mode = Mode.Create;
         }
@@ -34,8 +33,6 @@ namespace NBD2.ViewModel
             Person = person ?? throw new ArgumentNullException(nameof(person));
 
             SaveCommand = new RelayCommand(Save, CanSave);
-//            UpdateNames();
-//            _originalName = person.Name;
             Mode = Mode.Edit;
         }
 
@@ -61,20 +58,7 @@ namespace NBD2.ViewModel
 
             return true;
         }
-//
-//        private void UpdateNames()
-//        {
-//            MotherNames = _personService
-//                .GetPossibleParentsFor(Person.GetModel(), Sex.Female)
-//                .Select(x => x.Name)
-//                .ToArray();
-//
-//            FatherNames = _personService
-//                .GetPossibleParentsFor(Person.GetModel(), Sex.Male)
-//                .Select(x => x.Name)
-//                .ToArray();
-//        }
-
+        
         public event EventHandler OnSaved;
     }
 

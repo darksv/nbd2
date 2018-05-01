@@ -33,9 +33,12 @@
         <Label Grid.Column="0" Grid.Row="3">Płeć</Label>
         <ComboBox Grid.Column="1" Grid.Row="3" SelectedValue="{Binding Person.Sex, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Sexes}" />
         <Button Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Command="{Binding SaveCommand}" Margin="0,5,0,0">Zapisz</Button>
-<!--        <Label Grid.Column="0" Grid.Row="4">Matka</Label>-->
-<!--        <ComboBox Grid.Column="1" Grid.Row="4" SelectedValue="{Binding Person.MotherName}" ItemsSource="{Binding MotherNames}" />-->
-<!--        <Label Grid.Column="0" Grid.Row="5">Ojciec</Label>-->
-<!--        <ComboBox Grid.Column="1" Grid.Row="5" SelectedValue="{Binding Person.FatherName}" ItemsSource="{Binding FatherNames}" />-->
     </Grid>
 </Window>
+
+
+
+
+
+
+
