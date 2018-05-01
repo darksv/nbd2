@@ -64,12 +64,25 @@ namespace NBD2.Service
         {
             using (var context = Open())
             {
-                var oldPerson = context.Query<Person>().FirstOrDefault(x => x.Name == name);
-                if (oldPerson != null)
+                var person = context.Query<Person>().FirstOrDefault(x => x.Name == name);
+                if (person == null)
                 {
-                    // TODO: remove all relations
-                    context.Delete(oldPerson);
+                    return;
                 }
+
+                foreach (var child in context.Query<Person>().Where(x => x.FatherName == name))
+                {
+                    child.FatherName = null;
+                    context.Store(child);
+                }
+
+                foreach (var child in context.Query<Person>().Where(x => x.MotherName == name))
+                {
+                    child.MotherName = null;
+                    context.Store(child);
+                }
+
+                context.Delete(person);
             }
         }
     }
