@@ -47,16 +47,34 @@ namespace NBD2.Service
             using (var context = Open())
             {
                 var oldPerson = context.Query<Person>().FirstOrDefault(x => x.Name == name);
-                if (oldPerson != null)
+                if (oldPerson == null)
                 {
-                    oldPerson.Name = person.Name;
-                    oldPerson.DateOfBirth = person.DateOfBirth;
-                    oldPerson.DateOfDeath = person.DateOfDeath;
-                    oldPerson.Sex = person.Sex;
-                    oldPerson.FatherName = person.FatherName;
-                    oldPerson.MotherName = person.MotherName;
-                    context.Store(oldPerson);
+                    return;
                 }
+
+                oldPerson.Name = person.Name;
+                oldPerson.DateOfBirth = person.DateOfBirth;
+                oldPerson.DateOfDeath = person.DateOfDeath;
+                oldPerson.Sex = person.Sex;
+                oldPerson.FatherName = person.FatherName;
+                oldPerson.MotherName = person.MotherName;
+
+                if (oldPerson.Name != name)
+                {
+                    foreach (var child in context.Query<Person>().Where(x => x.FatherName == oldPerson.Name))
+                    {
+                        child.FatherName = name;
+                        context.Store(child);
+                    }
+
+                    foreach (var child in context.Query<Person>().Where(x => x.MotherName == oldPerson.Name))
+                    {
+                        child.MotherName = name;
+                        context.Store(child);
+                    }
+                }
+
+                context.Store(oldPerson);
             }
         }
 
