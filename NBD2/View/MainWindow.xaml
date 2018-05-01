@@ -27,14 +27,14 @@
                     <GridViewColumn Header="Data urodzenia">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding DateOfBirth}" />
+                                <TextBlock Text="{Binding DateOfBirth, StringFormat=d, ConverterCulture=pl-PL}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="Data śmierci">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding DateOfDeath}" />
+                                <TextBlock Text="{Binding DateOfDeath, StringFormat=d, ConverterCulture=pl-PL}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
