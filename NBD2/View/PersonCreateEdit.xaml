@@ -48,8 +48,11 @@
         <DatePicker Grid.Column="1" Grid.Row="2"
                     SelectedDate="{Binding DateOfDeath, UpdateSourceTrigger=PropertyChanged}" />
         <Label Grid.Column="0" Grid.Row="3">Płeć</Label>
-        <ComboBox Grid.Column="1" Grid.Row="3" SelectedValue="{Binding Sex, UpdateSourceTrigger=PropertyChanged}"
-                  ItemsSource="{Binding Sexes}" />
+        <ComboBox Grid.Column="1" Grid.Row="3" SelectedValue="{Binding Sex, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Tag">
+            <ComboBoxItem Content="(nie podano)" Tag="{x:Null}"/>
+            <ComboBoxItem Content="Kobieta" Tag="Female"/>
+            <ComboBoxItem Content="Mężczyzna" Tag="Male"/>
+        </ComboBox>
         <Button Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Command="{Binding SaveCommand}" Margin="0,5,0,0">Zapisz</Button>
     </Grid>
 </Window>
