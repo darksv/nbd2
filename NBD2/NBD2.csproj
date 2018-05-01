@@ -99,7 +99,6 @@
     <Compile Include="Util\EnumUtils.cs" />
     <Compile Include="Util\RelayCommand.cs" />
     <Compile Include="ViewModel\BindableBase.cs" />
-    <Compile Include="ViewModel\Itest.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\PersonCreateEditViewModel.cs" />
     <Compile Include="Model\Sex.cs" />
@@ -111,7 +110,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="ViewModel\Test.cs" />
     <Compile Include="View\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -148,7 +146,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="ViewModel\TextFile1.fs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
