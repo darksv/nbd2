@@ -19,10 +19,12 @@ namespace NBD2.ViewModel
         public ICommand SaveCommand { get; }
         public Mode Mode { get; private set; }
         public string OriginalName => _person?.Name;
-            
+
         public PersonCreateEditViewModel(IPersonService personService)
         {
             _personService = personService;
+            _person = new PersonViewModel();
+
             SaveCommand = new RelayCommand(Save, CanSave);
             Mode = Mode.Create;
         }
@@ -50,12 +52,14 @@ namespace NBD2.ViewModel
             else
             {
                 _personService.Update(Name, GetModel());
-                _person.Name = Name;
-                _person.Sex = Sex;
-                _person.DateOfBirth = DateOfBirth;
-                _person.DateOfDeath = DateOfDeath;
             }
-            OnSaved?.Invoke(this, EventArgs.Empty);
+
+            _person.Name = Name;
+            _person.Sex = Sex;
+            _person.DateOfBirth = DateOfBirth;
+            _person.DateOfDeath = DateOfDeath;
+
+            OnSaved?.Invoke(this, new PersonCreateEditEventArgs{Person = _person});
         }
 
         private Person GetModel()
@@ -83,8 +87,13 @@ namespace NBD2.ViewModel
 
             return !_personService.IsNameTaken(Name);
         }
-        
-        public event EventHandler OnSaved;
+
+        public event EventHandler<PersonCreateEditEventArgs> OnSaved;
+    }
+
+    public class PersonCreateEditEventArgs : EventArgs
+    {
+        public PersonViewModel Person { get; set; }
     }
 
     public enum Mode

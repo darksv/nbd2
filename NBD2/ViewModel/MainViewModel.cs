@@ -24,13 +24,15 @@ namespace NBD2.ViewModel
             _treeCreator = treeCreator;
             CreateCommand = new RelayCommand(() =>
             {
-                var w = new PersonCreateEdit(new PersonCreateEditViewModel(_personService));
-                w.ShowDialog();
+                var createViewModel = new PersonCreateEditViewModel(_personService);
+                createViewModel.OnSaved += (s, e) => Persons.Add(e.Person);
+                var window = new PersonCreateEdit(createViewModel);
+                window.ShowDialog();
             });
             EditCommand = new RelayCommand<PersonViewModel>(p =>
             {
-                var w = new PersonCreateEdit(new PersonCreateEditViewModel(p, _personService));
-                w.ShowDialog();
+                var window = new PersonCreateEdit(new PersonCreateEditViewModel(p, _personService));
+                window.ShowDialog();
             });
             DeleteCommand = new RelayCommand<PersonViewModel>(p =>
             {
