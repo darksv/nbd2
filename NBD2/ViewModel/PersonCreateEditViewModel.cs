@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using NBD2.Model;
@@ -13,24 +10,31 @@ namespace NBD2.ViewModel
     public class PersonCreateEditViewModel : BindableBase
     {
         private readonly IPersonService _personService;
-        public PersonViewModel Person { get; set; }
+        private readonly PersonViewModel _person;
+        public string Name { get; set; }
+        public Sex? Sex { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public DateTime? DateOfDeath { get; set; }
         public Sex[] Sexes { get; } = EnumUtils.GetValues<Sex>().ToArray();
         public ICommand SaveCommand { get; }
         private Mode Mode { get; set; }
-
 
         public PersonCreateEditViewModel(IPersonService personService)
         {
             _personService = personService;
             SaveCommand = new RelayCommand(Save, CanSave);
-            Person = new PersonViewModel();
             Mode = Mode.Create;
         }
 
         public PersonCreateEditViewModel(PersonViewModel person, IPersonService personService)
         {
             _personService = personService ?? throw new ArgumentNullException(nameof(personService));
-            Person = person ?? throw new ArgumentNullException(nameof(person));
+            _person = person ?? throw new ArgumentNullException(nameof(person));
+
+            Name = person.Name;
+            Sex = person.Sex;
+            DateOfBirth = person.DateOfBirth;
+            DateOfDeath = person.DateOfDeath;
 
             SaveCommand = new RelayCommand(Save, CanSave);
             Mode = Mode.Edit;
@@ -40,23 +44,43 @@ namespace NBD2.ViewModel
         {
             if (Mode == Mode.Create)
             {
-                _personService.Create(Person.GetModel());
+                _personService.Create(GetModel());
             }
             else
             {
-                _personService.Update(Person.Name, Person.GetModel());
+                _personService.Update(Name, GetModel());
+                _person.Name = Name;
+                _person.Sex = Sex;
+                _person.DateOfBirth = DateOfBirth;
+                _person.DateOfDeath = DateOfDeath;
             }
             OnSaved?.Invoke(this, EventArgs.Empty);
         }
 
+        private Person GetModel()
+        {
+            return new Person
+            {
+                Name = Name,
+                Sex = Sex,
+                DateOfBirth = DateOfBirth,
+                DateOfDeath = DateOfDeath,
+            };
+        }
+
         private bool CanSave()
         {
-            if (Mode == Mode.Create)
+            if (string.IsNullOrWhiteSpace(Name))
             {
-                return !string.IsNullOrWhiteSpace(Person.Name) && !_personService.IsNameTaken(Person.Name);
+                return false;
             }
 
-            return true;
+            if (Mode == Mode.Edit && Name == _person.Name)
+            {
+                return true;
+            }
+
+            return !_personService.IsNameTaken(Name);
         }
         
         public event EventHandler OnSaved;
