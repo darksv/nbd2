@@ -17,8 +17,9 @@ namespace NBD2.ViewModel
         public DateTime? DateOfDeath { get; set; }
         public Sex[] Sexes { get; } = EnumUtils.GetValues<Sex>().ToArray();
         public ICommand SaveCommand { get; }
-        private Mode Mode { get; set; }
-
+        public Mode Mode { get; private set; }
+        public string OriginalName => _person?.Name;
+            
         public PersonCreateEditViewModel(IPersonService personService)
         {
             _personService = personService;
@@ -86,7 +87,7 @@ namespace NBD2.ViewModel
         public event EventHandler OnSaved;
     }
 
-    internal enum Mode
+    public enum Mode
     {
         Create,
         Edit,
