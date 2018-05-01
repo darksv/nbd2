@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
-using NBD2.Model;
 using NBD2.Service;
 using NBD2.Util;
 using NBD2.View;
@@ -14,11 +12,11 @@ namespace NBD2.ViewModel
     {
         private readonly IPersonService _personService;
         private readonly TreeCreator _treeCreator;
-        public ObservableCollection<PersonViewModel> Persons { get; set; }
+        public ObservableCollection<PersonViewModel> Persons { get; } = new ObservableCollection<PersonViewModel>();
 
         public ICommand CreateCommand { get; }
         public ICommand EditCommand { get; }
-        public ICommand DeleteCommand { get; set; }
+        public ICommand DeleteCommand { get; }
 
         public MainViewModel(IPersonService personService, TreeCreator treeCreator)
         {
@@ -45,15 +43,10 @@ namespace NBD2.ViewModel
                 if (result == MessageBoxResult.Yes)
                 {
                     _personService.DeletePerson(p.Name);
-                    UpdatePersons();
+                    Persons.Remove(p);
                 }
             });
-            UpdatePersons();
-        }
 
-        private void UpdatePersons()
-        {
-            Persons = new ObservableCollection<PersonViewModel>();
             foreach (var person in _personService.GetAll())
             {
                 Persons.Add(new PersonViewModel
