@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 using NBD2.Model;
 using NBD2.Service;
@@ -17,6 +18,7 @@ namespace NBD2.ViewModel
 
         public ICommand CreateCommand { get; }
         public ICommand EditCommand { get; }
+        public ICommand DeleteCommand { get; set; }
 
         public MainViewModel(IPersonService personService, TreeCreator treeCreator)
         {
@@ -26,13 +28,31 @@ namespace NBD2.ViewModel
             {
                 var w = new PersonCreateEdit(new PersonCreateEditViewModel(_personService));
                 w.ShowDialog();
-            }, () => true);
+            });
             EditCommand = new RelayCommand<PersonViewModel>(p =>
             {
                 var w = new PersonCreateEdit(new PersonCreateEditViewModel(p, _personService));
                 w.ShowDialog();
-            }, p => true);
+            });
+            DeleteCommand = new RelayCommand<PersonViewModel>(p =>
+            {
+                var result = MessageBox.Show(
+                    $"Czy na pewno usunąć {p.Name}?",
+                    "Usuwanie",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question
+                );
+                if (result == MessageBoxResult.Yes)
+                {
+                    _personService.DeletePerson(p.Name);
+                    UpdatePersons();
+                }
+            });
+            UpdatePersons();
+        }
 
+        private void UpdatePersons()
+        {
             Persons = new ObservableCollection<PersonViewModel>();
             foreach (var person in _personService.GetAll())
             {

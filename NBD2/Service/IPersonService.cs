@@ -10,5 +10,6 @@ namespace NBD2.Service
         IEnumerable<Person> GetPossibleParentsFor(Person child, Sex sex);
         IEnumerable<Person> GetAll();
         void Update(string name, Person person);
+        void DeletePerson(string name);
     }
 }

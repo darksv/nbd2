@@ -59,5 +59,18 @@ namespace NBD2.Service
                 }
             }
         }
+
+        public void DeletePerson(string name)
+        {
+            using (var context = Open())
+            {
+                var oldPerson = context.Query<Person>().FirstOrDefault(x => x.Name == name);
+                if (oldPerson != null)
+                {
+                    // TODO: remove all relations
+                    context.Delete(oldPerson);
+                }
+            }
+        }
     }
 }
