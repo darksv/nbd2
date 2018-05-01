@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Windows.Input;
 using NBD2.Model;
 using NBD2.Service;
@@ -15,9 +14,8 @@ namespace NBD2.ViewModel
         public Sex? Sex { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public DateTime? DateOfDeath { get; set; }
-        public Sex[] Sexes { get; } = EnumUtils.GetValues<Sex>().ToArray();
         public ICommand SaveCommand { get; }
-        public Mode Mode { get; private set; }
+        public Mode Mode { get; }
         public string OriginalName => _person?.Name;
 
         public PersonCreateEditViewModel(IPersonService personService)
