@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using NBD2.Service;
@@ -52,29 +53,26 @@ namespace NBD2.ViewModel
             });
             ShowDescendantsCommand = new RelayCommand<PersonViewModel>(p =>
             {
-                var g = new BidirectionalGraph<object, IEdge<object>>();
-                var x = _treeCreator.BuildTreeForPerson("a");
-
-                foreach (var person in Persons)
+                var graph = new BidirectionalGraph<object, IEdge<object>>();
+                graph.AddVertex(p);
+                foreach (var relation in _treeCreator.GetRelationsForTreeOfDescdendants(p.Name))
                 {
-                    g.AddVertex(person);
-                    if (person.Father != null)
+                    var parent = Persons.First(x => x.Name == relation.Item1);
+                    var child = Persons.First(x => x.Name == relation.Item2);
+
+                    if (!graph.ContainsVertex(parent))
                     {
-                        g.AddEdge(new Edge<object>(person, person.Father));
+                        graph.AddVertex(parent);
                     }
 
-                    if (person.Mother != null)
+                    if (!graph.ContainsVertex(child))
                     {
-                        g.AddEdge(new Edge<object>(person, person.Mother));
+                        graph.AddVertex(child);
                     }
+
+                    graph.AddEdge(new Edge<object>(parent, child));
                 }
-
-                g.AddEdge(new Edge<object>(Persons[0], Persons[1]));
-                g.AddEdge(new Edge<object>(Persons[0], Persons[2]));
-                g.AddEdge(new Edge<object>(Persons[1], Persons[3]));
-                g.AddEdge(new Edge<object>(Persons[1], Persons[4]));
-
-                Graph = g;
+                Graph = graph;
             });
 
             foreach (var person in _personService.GetAll())

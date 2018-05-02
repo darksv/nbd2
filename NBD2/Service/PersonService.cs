@@ -103,5 +103,15 @@ namespace NBD2.Service
                 context.Delete(person);
             }
         }
+
+        public IEnumerable<string> GetChildrenOf(string parentName)
+        {
+            using (var context = Open())
+            {
+                return context
+                    .Query<Person>(p => p.MotherName == parentName || p.FatherName == parentName)
+                    .Select(x => x.Name).ToArray();
+            }
+        }
     }
 }

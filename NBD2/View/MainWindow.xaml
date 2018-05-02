@@ -19,6 +19,13 @@
         <ListView Grid.Row="0" ItemsSource="{Binding Persons}">
             <ListView.View>
                 <GridView>
+                    <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                     <GridViewColumn Header="Nazwa">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>

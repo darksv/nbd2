@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NBD2.Model;
 
 namespace NBD2.Service
@@ -36,6 +37,21 @@ namespace NBD2.Service
             }
 
             return CreateTreeRecursivelyFor(name, relations, peopleByName);
+        }
+
+        public IEnumerable<(string, string)> GetRelationsForTreeOfDescdendants(string person)
+        {
+            var stack = new Stack<string>();
+            stack.Push(person);
+            while (stack.Any())
+            {
+                var parent = stack.Pop();
+                foreach (var child in _personService.GetChildrenOf(parent))
+                {
+                    yield return (parent, child);
+                    stack.Push(child);
+                }
+            }
         }
 
         private TreeNode CreateTreeRecursivelyFor(
