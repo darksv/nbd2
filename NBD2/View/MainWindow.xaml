@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
         xmlns:viewModel="clr-namespace:NBD2.ViewModel"
+        xmlns:tree="clr-namespace:GraphSharp.Algorithms.Layout.Simple.Tree;assembly=GraphSharp"
+        xmlns:attachedBehaviours="clr-namespace:WPFExtensions.AttachedBehaviours;assembly=WPFExtensions"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         d:DataContext="{d:DesignInstance {x:Type viewModel:MainViewModel}}">
@@ -62,21 +64,41 @@
                     <GridViewColumn>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Command="{Binding DataContext.EditCommand, ElementName=LayoutRoot}" CommandParameter="{Binding}">Edytuj</Button>
+                                <Button Command="{Binding DataContext.EditCommand, ElementName=LayoutRoot}"
+                                        CommandParameter="{Binding}">
+                                    Edytuj
+                                </Button>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Command="{Binding DataContext.DeleteCommand, ElementName=LayoutRoot}" CommandParameter="{Binding}">Usuń</Button>
+                                <Button Command="{Binding DataContext.DeleteCommand, ElementName=LayoutRoot}"
+                                        CommandParameter="{Binding}">
+                                    Usuń
+                                </Button>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
-        <controls:GraphLayout Grid.Row="1" Graph="{Binding Graph}" LayoutAlgorithmType="Tree" />
+        <controls:GraphLayout 
+            CreationTransition="{x:Null}"
+            Grid.Row="1"
+            Graph="{Binding Graph}"
+            LayoutAlgorithmType="Tree"
+            LayoutMode="Simple" IsAnimationEnabled="False">
+            <controls:GraphLayout.LayoutParameters>
+                <tree:SimpleTreeLayoutParameters Direction="BottomToTop" VertexGap="50" />
+            </controls:GraphLayout.LayoutParameters>
+            <controls:GraphLayout.Resources>
+                <Style TargetType="controls:VertexControl">
+                    <Setter Property="attachedBehaviours:DragBehaviour.IsDragEnabled" Value="False" />
+                </Style>
+            </controls:GraphLayout.Resources>
+        </controls:GraphLayout>
         <Button Grid.Row="2" Command="{Binding CreateCommand}">Dodaj osobę</Button>
     </Grid>
 </Window>

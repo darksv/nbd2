@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Input;
 using NBD2.Service;
@@ -59,6 +60,13 @@ namespace NBD2.ViewModel
                     Sex = person.Sex,
                 });
             }
+
+            Persons.CollectionChanged += OnCollectionChanged;
+        }
+
+        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Graph));
         }
 
         public IBidirectionalGraph<object, IEdge<object>> Graph
@@ -66,7 +74,8 @@ namespace NBD2.ViewModel
             get
             {
                 var g = new BidirectionalGraph<object, IEdge<object>>();
-                _treeCreator.BuildTreeForPerson("a");
+                var x = _treeCreator.BuildTreeForPerson("a");
+
 
                 foreach (var person in Persons)
                 {
@@ -81,6 +90,11 @@ namespace NBD2.ViewModel
                         g.AddEdge(new Edge<object>(person, person.Mother));
                     }
                 }
+
+                g.AddEdge(new Edge<object>(Persons[0], Persons[1]));
+                g.AddEdge(new Edge<object>(Persons[0], Persons[2]));
+                g.AddEdge(new Edge<object>(Persons[1], Persons[3]));
+                g.AddEdge(new Edge<object>(Persons[1], Persons[4]));
 
                 return g;
             }
