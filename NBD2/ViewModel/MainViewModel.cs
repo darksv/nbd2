@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Input;
 using NBD2.Service;
@@ -14,10 +13,12 @@ namespace NBD2.ViewModel
         private readonly IPersonService _personService;
         private readonly TreeCreator _treeCreator;
         public ObservableCollection<PersonViewModel> Persons { get; } = new ObservableCollection<PersonViewModel>();
+        public IBidirectionalGraph<object, IEdge<object>> Graph { get; private set; }
 
         public ICommand CreateCommand { get; }
         public ICommand EditCommand { get; }
         public ICommand DeleteCommand { get; }
+        public ICommand ShowDescendantsCommand { get; set; }
 
         public MainViewModel(IPersonService personService, TreeCreator treeCreator)
         {
@@ -49,33 +50,10 @@ namespace NBD2.ViewModel
                     Persons.Remove(p);
                 }
             });
-
-            foreach (var person in _personService.GetAll())
-            {
-                Persons.Add(new PersonViewModel
-                {
-                    Name = person.Name,
-                    DateOfBirth = person.DateOfBirth,
-                    DateOfDeath = person.DateOfDeath,
-                    Sex = person.Sex,
-                });
-            }
-
-            Persons.CollectionChanged += OnCollectionChanged;
-        }
-
-        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(Graph));
-        }
-
-        public IBidirectionalGraph<object, IEdge<object>> Graph
-        {
-            get
+            ShowDescendantsCommand = new RelayCommand<PersonViewModel>(p =>
             {
                 var g = new BidirectionalGraph<object, IEdge<object>>();
                 var x = _treeCreator.BuildTreeForPerson("a");
-
 
                 foreach (var person in Persons)
                 {
@@ -96,7 +74,18 @@ namespace NBD2.ViewModel
                 g.AddEdge(new Edge<object>(Persons[1], Persons[3]));
                 g.AddEdge(new Edge<object>(Persons[1], Persons[4]));
 
-                return g;
+                Graph = g;
+            });
+
+            foreach (var person in _personService.GetAll())
+            {
+                Persons.Add(new PersonViewModel
+                {
+                    Name = person.Name,
+                    DateOfBirth = person.DateOfBirth,
+                    DateOfDeath = person.DateOfDeath,
+                    Sex = person.Sex,
+                });
             }
         }
     }
