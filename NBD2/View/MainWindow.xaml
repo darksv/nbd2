@@ -9,6 +9,7 @@
         xmlns:attachedBehaviours="clr-namespace:WPFExtensions.AttachedBehaviours;assembly=WPFExtensions"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
+        WindowStartupLocation="CenterScreen"
         d:DataContext="{d:DesignInstance {x:Type viewModel:MainViewModel}}">
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
@@ -16,7 +17,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ListView Grid.Row="0" ItemsSource="{Binding Persons}">
+        <ListView Grid.Row="0" ItemsSource="{Binding Persons}" SelectedItem="{Binding SelectedPerson, Mode=TwoWay}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn>
@@ -57,29 +58,14 @@
                     <GridViewColumn Header="Ojciec">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Father.Name}" />
+                                <TextBlock Text="{Binding FatherName}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="Matka">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Mother.Name}" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="Dzieci">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="Pokaż dzieci">
-                                    <TextBlock.ToolTip>
-                                        <ListView>
-                                            <ListBoxItem>aaa</ListBoxItem>
-                                            <ListBoxItem>aaa</ListBoxItem>
-                                            <ListBoxItem>aaa</ListBoxItem>
-                                        </ListView>
-                                    </TextBlock.ToolTip>
-                                </TextBlock>
+                                <TextBlock Text="{Binding MotherName}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -103,16 +89,6 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn>
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Command="{Binding DataContext.ShowDescendantsCommand, ElementName=LayoutRoot}"
-                                        CommandParameter="{Binding}">
-                                    Pokaż potomków
-                                </Button>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
@@ -123,7 +99,7 @@
             LayoutAlgorithmType="Tree"
             LayoutMode="Simple" IsAnimationEnabled="False">
             <controls:GraphLayout.LayoutParameters>
-                <tree:SimpleTreeLayoutParameters Direction="BottomToTop" VertexGap="50" />
+                <tree:SimpleTreeLayoutParameters Direction="TopToBottom" VertexGap="50" />
             </controls:GraphLayout.LayoutParameters>
             <controls:GraphLayout.Resources>
                 <Style TargetType="controls:VertexControl">

@@ -11,7 +11,9 @@ namespace NBD2.ViewModel
         public DateTime? DateOfDeath { get; set; }
         public Sex? Sex { get; set; }
         public PersonViewModel Mother { get; set; }
+        public string MotherName { get; set; }
         public PersonViewModel Father { get; set; }
+        public string FatherName { get; set; }
         public ObservableCollection<PersonViewModel> Children { get; set; }
 
         public Person GetModel()

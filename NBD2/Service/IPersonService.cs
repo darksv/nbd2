@@ -11,6 +11,7 @@ namespace NBD2.Service
         IEnumerable<Person> GetAll();
         void Update(string name, Person person);
         void DeletePerson(string name);
+        void CreateRelation(string parent, string child, RelationType relationType);
         IEnumerable<string> GetChildrenOf(string parentName);
     }
 }

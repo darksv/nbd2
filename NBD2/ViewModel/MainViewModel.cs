@@ -15,11 +15,11 @@ namespace NBD2.ViewModel
         private readonly TreeCreator _treeCreator;
         public ObservableCollection<PersonViewModel> Persons { get; } = new ObservableCollection<PersonViewModel>();
         public IBidirectionalGraph<object, IEdge<object>> Graph { get; private set; }
+        public PersonViewModel SelectedPerson { get; set; }
 
         public ICommand CreateCommand { get; }
         public ICommand EditCommand { get; }
         public ICommand DeleteCommand { get; }
-        public ICommand ShowDescendantsCommand { get; set; }
 
         public MainViewModel(IPersonService personService, TreeCreator treeCreator)
         {
@@ -51,29 +51,6 @@ namespace NBD2.ViewModel
                     Persons.Remove(p);
                 }
             });
-            ShowDescendantsCommand = new RelayCommand<PersonViewModel>(p =>
-            {
-                var graph = new BidirectionalGraph<object, IEdge<object>>();
-                graph.AddVertex(p);
-                foreach (var relation in _treeCreator.GetRelationsForTreeOfDescdendants(p.Name))
-                {
-                    var parent = Persons.First(x => x.Name == relation.Item1);
-                    var child = Persons.First(x => x.Name == relation.Item2);
-
-                    if (!graph.ContainsVertex(parent))
-                    {
-                        graph.AddVertex(parent);
-                    }
-
-                    if (!graph.ContainsVertex(child))
-                    {
-                        graph.AddVertex(child);
-                    }
-
-                    graph.AddEdge(new Edge<object>(parent, child));
-                }
-                Graph = graph;
-            });
 
             foreach (var person in _personService.GetAll())
             {
@@ -83,8 +60,41 @@ namespace NBD2.ViewModel
                     DateOfBirth = person.DateOfBirth,
                     DateOfDeath = person.DateOfDeath,
                     Sex = person.Sex,
+                    MotherName = person.MotherName,
+                    FatherName = person.FatherName,
                 });
             }
+        }
+
+        protected void OnSelectedPersonChanged()
+        {
+            if (SelectedPerson == null)
+            {
+                Graph = null;
+                return;
+            }
+
+            var graph = new BidirectionalGraph<object, IEdge<object>>();
+            graph.AddVertex(SelectedPerson);
+            foreach (var relation in _treeCreator.GetRelationsForTreeOfDescdendants(SelectedPerson.Name))
+            {
+                var parent = Persons.First(x => x.Name == relation.Item1);
+                var child = Persons.First(x => x.Name == relation.Item2);
+
+                if (!graph.ContainsVertex(parent))
+                {
+                    graph.AddVertex(parent);
+                }
+
+                if (!graph.ContainsVertex(child))
+                {
+                    graph.AddVertex(child);
+                }
+
+                graph.AddEdge(new Edge<object>(parent, child));
+            }
+
+            Graph = graph;
         }
     }
 }

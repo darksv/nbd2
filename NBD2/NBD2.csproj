@@ -98,6 +98,7 @@
     <Compile Include="Model\Person.cs" />
     <Compile Include="Service\IPersonService.cs" />
     <Compile Include="Service\PersonService.cs" />
+    <Compile Include="Service\RelationType.cs" />
     <Compile Include="Service\TreeCreator.cs" />
     <Compile Include="Util\EnumUtils.cs" />
     <Compile Include="Util\RelayCommand.cs" />

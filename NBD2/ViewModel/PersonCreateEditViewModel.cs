@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using NBD2.Model;
 using NBD2.Service;
@@ -14,9 +16,13 @@ namespace NBD2.ViewModel
         public Sex? Sex { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public DateTime? DateOfDeath { get; set; }
+        public string MotherName { get; set; }
+        public string FatherName { get; set; }
         public ICommand SaveCommand { get; }
         public Mode Mode { get; }
         public string OriginalName => _person?.Name;
+        public IEnumerable<string> PossibleMothers { get; private set; }
+        public IEnumerable<string> PossibleFathers { get; private set; }
 
         public PersonCreateEditViewModel(IPersonService personService)
         {
@@ -25,6 +31,9 @@ namespace NBD2.ViewModel
 
             SaveCommand = new RelayCommand(Save, CanSave);
             Mode = Mode.Create;
+
+            PossibleFathers = _personService.GetAll().Select(x => x.Name);
+            PossibleMothers = _personService.GetAll().Select(x => x.Name);
         }
 
         public PersonCreateEditViewModel(PersonViewModel person, IPersonService personService)
@@ -36,9 +45,14 @@ namespace NBD2.ViewModel
             Sex = person.Sex;
             DateOfBirth = person.DateOfBirth;
             DateOfDeath = person.DateOfDeath;
+            MotherName = person.MotherName;
+            FatherName = person.FatherName;
 
             SaveCommand = new RelayCommand(Save, CanSave);
             Mode = Mode.Edit;
+
+            PossibleFathers = _personService.GetPossibleParentsFor(_person.GetModel(), Model.Sex.Male).Select(x => x.Name);
+            PossibleMothers = _personService.GetPossibleParentsFor(_person.GetModel(), Model.Sex.Female).Select(x => x.Name);
         }
 
         private void Save()
@@ -56,6 +70,8 @@ namespace NBD2.ViewModel
             _person.Sex = Sex;
             _person.DateOfBirth = DateOfBirth;
             _person.DateOfDeath = DateOfDeath;
+            _person.MotherName = MotherName;
+            _person.FatherName = FatherName;
 
             OnSaved?.Invoke(this, new PersonCreateEditEventArgs{Person = _person});
         }
@@ -68,8 +84,8 @@ namespace NBD2.ViewModel
                 Sex = Sex,
                 DateOfBirth = DateOfBirth,
                 DateOfDeath = DateOfDeath,
-                MotherName = _person.MotherName,
-                FatherName = _person.FatherName,
+                MotherName = MotherName,
+                FatherName = FatherName,
             };
         }
 
