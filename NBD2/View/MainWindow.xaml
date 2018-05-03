@@ -92,22 +92,29 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <controls:GraphLayout 
-            CreationTransition="{x:Null}"
-            DestructionTransition="{x:Null}"
-            Grid.Row="1"
-            Graph="{Binding Graph}"
-            LayoutAlgorithmType="Tree"
-            LayoutMode="Simple" IsAnimationEnabled="False">
-            <controls:GraphLayout.LayoutParameters>
-                <tree:SimpleTreeLayoutParameters Direction="TopToBottom" VertexGap="50" />
-            </controls:GraphLayout.LayoutParameters>
-            <controls:GraphLayout.Resources>
-                <Style TargetType="controls:VertexControl">
-                    <Setter Property="attachedBehaviours:DragBehaviour.IsDragEnabled" Value="False" />
-                </Style>
-            </controls:GraphLayout.Resources>
-        </controls:GraphLayout>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <controls:GraphLayout
+                Grid.Column="0"
+                CreationTransition="{x:Null}"
+                DestructionTransition="{x:Null}"
+                Graph="{Binding Graph}"
+                LayoutAlgorithmType="Tree"
+                LayoutMode="Simple" IsAnimationEnabled="False">
+                <controls:GraphLayout.LayoutParameters>
+                    <tree:SimpleTreeLayoutParameters Direction="TopToBottom" VertexGap="50" />
+                </controls:GraphLayout.LayoutParameters>
+                <controls:GraphLayout.Resources>
+                    <Style TargetType="controls:VertexControl">
+                        <Setter Property="attachedBehaviours:DragBehaviour.IsDragEnabled" Value="False" />
+                    </Style>
+                </controls:GraphLayout.Resources>
+            </controls:GraphLayout>
+            <ListView Grid.Column="1" ItemsSource="{Binding PossibleInheritors}"/>
+        </Grid>
         <Button Grid.Row="2" Command="{Binding CreateCommand}">Dodaj osobę</Button>
     </Grid>
 </Window>

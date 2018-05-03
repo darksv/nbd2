@@ -125,13 +125,26 @@ namespace NBD2.Service
             }
         }
 
-        public IEnumerable<string> GetChildrenOf(string parentName)
+        public IEnumerable<Person> GetChildrenOf(string parentName)
         {
             using (var context = Open())
             {
-                return context
-                    .Query<Person>(p => p.MotherName == parentName || p.FatherName == parentName)
-                    .Select(x => x.Name).ToArray();
+                return context.Query<Person>(p => p.MotherName == parentName || p.FatherName == parentName).ToArray();
+            }
+        }
+
+        public IEnumerable<Person> GetLivingDescendants(string parentName)
+        {
+            var stack = new Stack<string>();
+            stack.Push(parentName);
+            while (stack.Any())
+            {
+                var parent = stack.Pop();
+                foreach (var child in GetChildrenOf(parent))
+                {
+                    yield return child;
+                    stack.Push(child.Name);
+                }
             }
         }
     }

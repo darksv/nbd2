@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -16,6 +17,7 @@ namespace NBD2.ViewModel
         public ObservableCollection<PersonViewModel> Persons { get; } = new ObservableCollection<PersonViewModel>();
         public IBidirectionalGraph<object, IEdge<object>> Graph { get; private set; }
         public PersonViewModel SelectedPerson { get; set; }
+        public IEnumerable<string> PossibleInheritors { get; set; }
 
         public ICommand CreateCommand { get; }
         public ICommand EditCommand { get; }
@@ -95,6 +97,9 @@ namespace NBD2.ViewModel
             }
 
             Graph = graph;
+            PossibleInheritors = _personService.GetLivingDescendants(SelectedPerson.Name)
+                .Where(x => !x.DateOfDeath.HasValue)
+                .Select(x => x.Name);
         }
     }
 }

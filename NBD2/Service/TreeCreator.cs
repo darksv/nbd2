@@ -48,8 +48,8 @@ namespace NBD2.Service
                 var parent = stack.Pop();
                 foreach (var child in _personService.GetChildrenOf(parent))
                 {
-                    yield return (parent, child);
-                    stack.Push(child);
+                    yield return (parent, child.Name);
+                    stack.Push(child.Name);
                 }
             }
         }
