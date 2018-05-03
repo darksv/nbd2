@@ -94,6 +94,7 @@
         </ListView>
         <controls:GraphLayout 
             CreationTransition="{x:Null}"
+            DestructionTransition="{x:Null}"
             Grid.Row="1"
             Graph="{Binding Graph}"
             LayoutAlgorithmType="Tree"
