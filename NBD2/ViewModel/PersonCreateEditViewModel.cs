@@ -21,8 +21,14 @@ namespace NBD2.ViewModel
         public ICommand SaveCommand { get; }
         public Mode Mode { get; }
         public string OriginalName => _person?.Name;
-        public IEnumerable<string> PossibleMothers { get; private set; }
-        public IEnumerable<string> PossibleFathers { get; private set; }
+        public IEnumerable<ParentItem> PossibleMothers { get; private set; }
+        public IEnumerable<ParentItem> PossibleFathers { get; private set; }
+
+        public class ParentItem
+        {
+            public string Name { get; set; }
+            public string Value { get; set; }
+        }
 
         public PersonCreateEditViewModel(IPersonService personService)
         {
@@ -32,8 +38,7 @@ namespace NBD2.ViewModel
             SaveCommand = new RelayCommand(Save, CanSave);
             Mode = Mode.Create;
 
-            PossibleFathers = _personService.GetAll().Select(x => x.Name);
-            PossibleMothers = _personService.GetAll().Select(x => x.Name);
+            UpdatePossibleParents();
         }
 
         public PersonCreateEditViewModel(PersonViewModel person, IPersonService personService)
@@ -51,8 +56,14 @@ namespace NBD2.ViewModel
             SaveCommand = new RelayCommand(Save, CanSave);
             Mode = Mode.Edit;
 
-            PossibleFathers = _personService.GetPossibleParentsFor(_person.GetModel(), Model.Sex.Male).Select(x => x.Name);
-            PossibleMothers = _personService.GetPossibleParentsFor(_person.GetModel(), Model.Sex.Female).Select(x => x.Name);
+            UpdatePossibleParents();
+        }
+
+        private void UpdatePossibleParents()
+        {
+            var nullParent = EnumerableExt.FromSingle(new ParentItem{Name = "(nie podano)", Value = null}).ToArray();
+            PossibleFathers = nullParent.Concat(_personService.GetAll().Select(x => new ParentItem{Name = x.Name, Value = x.Name}));
+            PossibleMothers = nullParent.Concat(_personService.GetAll().Select(x => new ParentItem{Name = x.Name, Value = x.Name}));
         }
 
         private void Save()
