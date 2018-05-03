@@ -49,7 +49,7 @@ namespace NBD2.ViewModel
             }
             else
             {
-                _personService.Update(Name, GetModel());
+                _personService.Update(_person.Name, GetModel());
             }
 
             _person.Name = Name;
@@ -68,6 +68,8 @@ namespace NBD2.ViewModel
                 Sex = Sex,
                 DateOfBirth = DateOfBirth,
                 DateOfDeath = DateOfDeath,
+                MotherName = _person.MotherName,
+                FatherName = _person.FatherName,
             };
         }
 
