@@ -36,7 +36,9 @@ namespace NBD2.ViewModel
             });
             EditCommand = new RelayCommand<PersonViewModel>(p =>
             {
-                var window = new PersonCreateEdit(new PersonCreateEditViewModel(p, _personService));
+                var editViewModel = new PersonCreateEditViewModel(p, _personService);
+                editViewModel.OnSaved += (s, e) => UpdateList();
+                var window = new PersonCreateEdit(editViewModel);
                 window.ShowDialog();
             });
             DeleteCommand = new RelayCommand<PersonViewModel>(p =>
@@ -54,6 +56,12 @@ namespace NBD2.ViewModel
                 }
             });
 
+            UpdateList();
+        }
+
+        private void UpdateList()
+        {
+            Persons.Clear();
             foreach (var person in _personService.GetAll())
             {
                 Persons.Add(new PersonViewModel
