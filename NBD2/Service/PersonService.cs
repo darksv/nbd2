@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Db4objects.Db4o;
 using Db4objects.Db4o.Linq;
@@ -6,13 +7,14 @@ using NBD2.Model;
 
 namespace NBD2.Service
 {
-    class PersonService : IPersonService
+    class PersonService : IPersonService, IDisposable
     {
         private readonly IEmbeddedObjectContainer _context;
+        private const string DatabaseFileName = "persons.db";
 
         public PersonService()
         {
-            _context = Open();
+            _context = Db4oEmbedded.OpenFile(DatabaseFileName);
         }
 
         public bool IsNameTaken(string name)
@@ -24,11 +26,6 @@ namespace NBD2.Service
         {
             _context.Store(person);
             _context.Commit();
-        }
-
-        private static IEmbeddedObjectContainer Open()
-        {
-            return Db4oEmbedded.OpenFile("persons.db");
         }
 
         public IEnumerable<Person> GetAll()
@@ -109,6 +106,7 @@ namespace NBD2.Service
                 }
 
                 _context.Store(c);
+                _context.Commit();
             }
         }
 
@@ -130,6 +128,11 @@ namespace NBD2.Service
                     stack.Push(child.Name);
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            _context?.Dispose();
         }
     }
 }
