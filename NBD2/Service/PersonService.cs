@@ -35,35 +35,35 @@ namespace NBD2.Service
 
         public void Update(string name, Person person)
         {
-            var oldPerson = _context.Query<Person>().FirstOrDefault(x => x.Name == name);
-            if (oldPerson == null)
+            var originalPerson = _context.Query<Person>().FirstOrDefault(x => x.Name == name);
+            if (originalPerson == null)
             {
                 return;
             }
 
-            oldPerson.Name = person.Name;
-            oldPerson.DateOfBirth = person.DateOfBirth;
-            oldPerson.DateOfDeath = person.DateOfDeath;
-            oldPerson.Sex = person.Sex;
-            oldPerson.FatherName = person.FatherName;
-            oldPerson.MotherName = person.MotherName;
+            originalPerson.Name = person.Name;
+            originalPerson.DateOfBirth = person.DateOfBirth;
+            originalPerson.DateOfDeath = person.DateOfDeath;
+            originalPerson.Sex = person.Sex;
+            originalPerson.FatherName = person.FatherName;
+            originalPerson.MotherName = person.MotherName;
 
-            if (oldPerson.Name != name)
+            if (originalPerson.Name != name)
             {
-                foreach (var child in _context.Query<Person>().Where(x => x.FatherName == oldPerson.Name))
+                foreach (var child in _context.Query<Person>().Where(x => x.FatherName == name))
                 {
-                    child.FatherName = name;
+                    child.FatherName = person.Name;
                     _context.Store(child);
                 }
 
-                foreach (var child in _context.Query<Person>().Where(x => x.MotherName == oldPerson.Name))
+                foreach (var child in _context.Query<Person>().Where(x => x.MotherName == name))
                 {
-                    child.MotherName = name;
+                    child.MotherName = person.Name;
                     _context.Store(child);
                 }
             }
 
-            _context.Store(oldPerson);
+            _context.Store(originalPerson);
             _context.Commit();
         }
 
