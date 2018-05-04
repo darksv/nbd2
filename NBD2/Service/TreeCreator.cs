@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NBD2.Model;
 
@@ -11,32 +12,6 @@ namespace NBD2.Service
         public TreeCreator(IPersonService personService)
         {
             _personService = personService;
-        }
-
-        public class TreeNode
-        {
-            public Person Parent { get; }
-            public HashSet<TreeNode> Children { get; } = new HashSet<TreeNode>();
-
-            public TreeNode(Person parent)
-            {
-                Parent = parent;
-            }
-        }
-
-        public TreeNode BuildTreeForPerson(string name)
-        {
-            var relations = new Dictionary<string, HashSet<string>>();
-            var peopleByName = new Dictionary<string, Person>();
-
-            foreach (var person in _personService.GetAll())
-            {
-                InsertRelation(relations, person.FatherName, person.Name);
-                InsertRelation(relations, person.MotherName, person.Name);
-                peopleByName.Add(person.Name, person);
-            }
-
-            return CreateTreeRecursivelyFor(name, relations, peopleByName);
         }
 
         public IEnumerable<(string, string)> GetRelationsForTreeOfDescdendants(string person)
@@ -54,51 +29,131 @@ namespace NBD2.Service
             }
         }
 
-        private TreeNode CreateTreeRecursivelyFor(
-            string personName, 
-            Dictionary<string, HashSet<string>> relations,
-            Dictionary<string, Person> peopleByName)
+        public IEnumerable<string> GetCommonAncestors(string firstPerson, string secondPerson)
         {
-            TreeNode parent = null;
-            if (relations.TryGetValue(personName, out var children))
+            var persons = _personService.GetAll().ToDictionary(x => x.Name, x => x);
+            var queue = new Queue<Person>();
+
+            var firstAncestors  = new HashSet<Person>();
+            queue.Enqueue(persons[firstPerson]);
+            while (queue.Any())
             {
-                parent = new TreeNode(peopleByName[personName]);
-                foreach (var childName in children)
+                var child = queue.Dequeue();
+                firstAncestors.Add(child);
+
+                if (child.FatherName != null)
                 {
-                    parent.Children.Add(CreateTreeRecursivelyFor(childName, relations, peopleByName));
+                    queue.Enqueue(persons[child.FatherName]);
+                }
+
+                if (child.MotherName != null)
+                {
+                    queue.Enqueue(persons[child.MotherName]);
                 }
             }
-            return parent;
+
+            var secondAncestors = new HashSet<Person>();
+            queue.Enqueue(persons[secondPerson]);
+            while (queue.Any())
+            {
+                var child = queue.Dequeue();
+                secondAncestors.Add(child);
+
+                if (child.FatherName != null)
+                {
+                    queue.Enqueue(persons[child.FatherName]);
+                }
+
+                if (child.MotherName != null)
+                {
+                    queue.Enqueue(persons[child.MotherName]);
+                }
+            }
+
+            return firstAncestors.Intersect(secondAncestors).Select(x => x.Name);
         }
-//
-//        private TreeNode CreateTreeRecursivelyFor2(
-//            string personName,
-//            Dictionary<string, HashSet<string>> relations,
-//            Dictionary<string, Person> peopleByName)
-//        {
-//            TreeNode parent = null;
-//            if (relations.TryGetValue(personName, out var children))
-//            {
-//                parent = new TreeNode(peopleByName[personName]);
-//                foreach (var childName in children)
-//                {
-//                    parent.Children.Add(CreateTreeRecursivelyFor(childName, relations, peopleByName));
-//                }
-//            }
-//            return parent;
-//        }
 
-        private void InsertRelation(IDictionary<string, HashSet<string>> relations, string parentName, string childName)
+        public bool CanBeMotherOf(Person mother, Person child)
         {
-            if (parentName != null)
+            if (mother.Sex == Sex.Male)
             {
-                if (!relations.ContainsKey(parentName))
+                return false;
+            }
+
+            if (mother.DateOfBirth.HasValue && child.DateOfBirth.HasValue)
+            {
+                var ageOfMother = (child.DateOfBirth.Value - mother.DateOfBirth.Value).TotalDays / 365;
+                if (ageOfMother < 10 || ageOfMother > 60)
                 {
-                    relations.Add(parentName, new HashSet<string>());
+                    return false;
                 }
 
-                relations[parentName].Add(childName);
+                if (mother.DateOfDeath.HasValue)
+                {
+                    if (child.DateOfBirth.Value <= mother.DateOfBirth ||
+                        child.DateOfBirth.Value >= mother.DateOfDeath.Value)
+                    {
+                        return false;
+                    }
+                }
             }
+
+            return true;
+        }
+
+        public bool CanBeFatherOf(Person father, Person child)
+        {
+            if (father.Sex == Sex.Female)
+            {
+                return false;
+            }
+
+            if (father.DateOfBirth.HasValue && child.DateOfBirth.HasValue)
+            {
+                var ageOfFather = (child.DateOfBirth.Value - father.DateOfBirth.Value).TotalDays / 365;
+                if (ageOfFather < 12 || ageOfFather > 70)
+                {
+                    return false;
+                }
+
+                if (father.DateOfDeath.HasValue)
+                {
+                    if (child.DateOfBirth.Value <= father.DateOfBirth ||
+                        child.DateOfBirth.Value >= father.DateOfDeath.Value + TimeSpan.FromDays(270))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public bool CanBeParentOf(string parentName, string childName)
+        {
+            var persons = _personService.GetAll().ToDictionary(x => x.Name, x => x);
+            var stack = new Stack<Person>();
+            stack.Push(persons[parentName]);
+            while (stack.Any())
+            {
+                var person = stack.Pop();
+                if (person.Name == childName)
+                {
+                    return false;
+                }
+
+                if (person.FatherName != null)
+                {
+                    stack.Push(persons[person.FatherName]);
+                }
+
+                if (person.MotherName != null)
+                {
+                    stack.Push(persons[person.MotherName]);
+                }
+            }
+
+            return true;
         }
     }
 }

@@ -62,8 +62,25 @@ namespace NBD2.ViewModel
         private void UpdatePossibleParents()
         {
             var nullParent = EnumerableExt.FromSingle(new ParentItem{Name = "(nie podano)", Value = null}).ToArray();
-            PossibleFathers = nullParent.Concat(_personService.GetAll().Select(x => new ParentItem{Name = x.Name, Value = x.Name}));
-            PossibleMothers = nullParent.Concat(_personService.GetAll().Select(x => new ParentItem{Name = x.Name, Value = x.Name}));
+            PossibleFathers = nullParent.Concat(GetPossibleParents(Model.Sex.Male).Select(x => new ParentItem{Name = x, Value = x}));
+            PossibleMothers = nullParent.Concat(GetPossibleParents(Model.Sex.Female).Select(x => new ParentItem { Name = x, Value = x }));
+        }
+
+        private IEnumerable<string> GetPossibleParents(Sex sex)
+        {
+            var child = GetModel();
+            var creator = new TreeCreator(_personService);
+            var persons = _personService.GetAll();
+            persons = sex == Model.Sex.Male
+                ? persons.Where(x => creator.CanBeFatherOf(x, child))
+                : persons.Where(x => creator.CanBeMotherOf(x, child));
+
+            if (Mode == Mode.Edit)
+            {
+                persons = persons.Where(x => creator.CanBeParentOf(x.Name, _person.Name));
+            }
+
+            return persons.Select(x => x.Name);
         }
 
         private void Save()

@@ -7,7 +7,6 @@ namespace NBD2.Service
     {
         bool IsNameTaken(string name);
         void Create(Person person);
-        IEnumerable<Person> GetPossibleParentsFor(Person child, Sex sex);
         IEnumerable<Person> GetAll();
         void Update(string name, Person person);
         void DeletePerson(string name);

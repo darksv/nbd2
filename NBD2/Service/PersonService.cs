@@ -8,20 +8,22 @@ namespace NBD2.Service
 {
     class PersonService : IPersonService
     {
+        private readonly IEmbeddedObjectContainer _context;
+
+        public PersonService()
+        {
+            _context = Open();
+        }
+
         public bool IsNameTaken(string name)
         {
-            using (var context = Open())
-            {
-                return context.AsQueryable<Person>().Any(x => x.Name == name);
-            }
+            return _context.AsQueryable<Person>().Any(x => x.Name == name);
         }
 
         public void Create(Person person)
         {
-            using (var context = Open())
-            {
-                context.Store(person);
-            }
+            _context.Store(person);
+            _context.Commit();
         }
 
         private static IEmbeddedObjectContainer Open()
@@ -29,108 +31,90 @@ namespace NBD2.Service
             return Db4oEmbedded.OpenFile("persons.db");
         }
 
-        public IEnumerable<Person> GetPossibleParentsFor(Person child, Sex sex)
-        {
-            return GetAll(); // TODO: implement proper logic
-        }
-
         public IEnumerable<Person> GetAll()
         {
-            using (var context = Open())
-            {
-                return context.Query<Person>().ToArray();
-            }
+            return _context.Query<Person>().ToArray();
         }
 
         public void Update(string name, Person person)
         {
-            using (var context = Open())
+            var oldPerson = _context.Query<Person>().FirstOrDefault(x => x.Name == name);
+            if (oldPerson == null)
             {
-                var oldPerson = context.Query<Person>().FirstOrDefault(x => x.Name == name);
-                if (oldPerson == null)
-                {
-                    return;
-                }
-
-                oldPerson.Name = person.Name;
-                oldPerson.DateOfBirth = person.DateOfBirth;
-                oldPerson.DateOfDeath = person.DateOfDeath;
-                oldPerson.Sex = person.Sex;
-                oldPerson.FatherName = person.FatherName;
-                oldPerson.MotherName = person.MotherName;
-
-                if (oldPerson.Name != name)
-                {
-                    foreach (var child in context.Query<Person>().Where(x => x.FatherName == oldPerson.Name))
-                    {
-                        child.FatherName = name;
-                        context.Store(child);
-                    }
-
-                    foreach (var child in context.Query<Person>().Where(x => x.MotherName == oldPerson.Name))
-                    {
-                        child.MotherName = name;
-                        context.Store(child);
-                    }
-                }
-
-                context.Store(oldPerson);
+                return;
             }
+
+            oldPerson.Name = person.Name;
+            oldPerson.DateOfBirth = person.DateOfBirth;
+            oldPerson.DateOfDeath = person.DateOfDeath;
+            oldPerson.Sex = person.Sex;
+            oldPerson.FatherName = person.FatherName;
+            oldPerson.MotherName = person.MotherName;
+
+            if (oldPerson.Name != name)
+            {
+                foreach (var child in _context.Query<Person>().Where(x => x.FatherName == oldPerson.Name))
+                {
+                    child.FatherName = name;
+                    _context.Store(child);
+                }
+
+                foreach (var child in _context.Query<Person>().Where(x => x.MotherName == oldPerson.Name))
+                {
+                    child.MotherName = name;
+                    _context.Store(child);
+                }
+            }
+
+            _context.Store(oldPerson);
+            _context.Commit();
         }
 
         public void DeletePerson(string name)
         {
-            using (var context = Open())
+            var person = _context.Query<Person>().FirstOrDefault(x => x.Name == name);
+            if (person == null)
             {
-                var person = context.Query<Person>().FirstOrDefault(x => x.Name == name);
-                if (person == null)
-                {
-                    return;
-                }
-
-                foreach (var child in context.Query<Person>().Where(x => x.FatherName == name))
-                {
-                    child.FatherName = null;
-                    context.Store(child);
-                }
-
-                foreach (var child in context.Query<Person>().Where(x => x.MotherName == name))
-                {
-                    child.MotherName = null;
-                    context.Store(child);
-                }
-
-                context.Delete(person);
+                return;
             }
+
+            foreach (var child in _context.Query<Person>().Where(x => x.FatherName == name))
+            {
+                child.FatherName = null;
+                _context.Store(child);
+            }
+
+            foreach (var child in _context.Query<Person>().Where(x => x.MotherName == name))
+            {
+                child.MotherName = null;
+                _context.Store(child);
+            }
+
+            _context.Delete(person);
+            _context.Commit();
         }
 
         public void CreateRelation(string parent, string child, RelationType relationType)
         {
-            using (var context = Open())
+            var c = _context.Query<Person>(p => p.Name == child).FirstOrDefault();
+            if (c != null)
             {
-                var c = context.Query<Person>(p => p.Name == child).FirstOrDefault();
-                if (c != null)
+                if (relationType == RelationType.Mother)
                 {
-                    if (relationType == RelationType.Mother)
-                    {
-                        c.MotherName = parent;
-                    }
-                    else
-                    {
-                        c.FatherName = parent;
-                    }
-
-                    context.Store(c);
+                    c.MotherName = parent;
                 }
+                else
+                {
+                    c.FatherName = parent;
+                }
+
+                _context.Store(c);
             }
         }
 
         public IEnumerable<Person> GetChildrenOf(string parentName)
         {
-            using (var context = Open())
-            {
-                return context.Query<Person>(p => p.MotherName == parentName || p.FatherName == parentName).ToArray();
-            }
+            return _context.Query<Person>(p => p.MotherName == parentName || p.FatherName == parentName).ToArray();
         }
 
         public IEnumerable<Person> GetLivingDescendants(string parentName)
