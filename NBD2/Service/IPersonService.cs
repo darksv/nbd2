@@ -12,6 +12,6 @@ namespace NBD2.Service
         void DeletePerson(string name);
         void CreateRelation(string parent, string child, RelationType relationType);
         IEnumerable<Person> GetChildrenOf(string parentName);
-        IEnumerable<Person> GetLivingDescendants(string parentName);
+        IEnumerable<Person> GetDescendantsOf(string parentName);
     }
 }

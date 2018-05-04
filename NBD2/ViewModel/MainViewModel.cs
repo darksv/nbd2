@@ -97,7 +97,7 @@ namespace NBD2.ViewModel
             }
 
             Graph = graph;
-            PossibleInheritors = _personService.GetLivingDescendants(SelectedPerson.Name)
+            PossibleInheritors = _personService.GetDescendantsOf(SelectedPerson.Name)
                 .Where(x => !x.DateOfDeath.HasValue)
                 .Select(x => x.Name);
         }
