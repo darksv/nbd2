@@ -61,9 +61,11 @@ namespace NBD2.ViewModel
 
         private void UpdatePossibleParents()
         {
-            var nullParent = EnumerableExt.FromSingle(new ParentItem{Name = "(nie podano)", Value = null}).ToArray();
-            PossibleFathers = nullParent.Concat(GetPossibleParents(Model.Sex.Male).Select(x => new ParentItem{Name = x, Value = x}));
-            PossibleMothers = nullParent.Concat(GetPossibleParents(Model.Sex.Female).Select(x => new ParentItem { Name = x, Value = x }));
+            var nullParent = EnumerableExt.FromSingle(new ParentItem {Name = "(nie podano)", Value = null}).ToArray();
+            PossibleFathers =
+                nullParent.Concat(GetPossibleParents(Model.Sex.Male).Select(x => new ParentItem {Name = x, Value = x}));
+            PossibleMothers = nullParent.Concat(GetPossibleParents(Model.Sex.Female)
+                .Select(x => new ParentItem {Name = x, Value = x}));
         }
 
         private IEnumerable<string> GetPossibleParents(Sex sex)
@@ -85,13 +87,14 @@ namespace NBD2.ViewModel
 
         private void Save()
         {
+            string originalName = _person?.Name;
             if (Mode == Mode.Create)
             {
                 _personService.Create(GetModel());
             }
             else
             {
-                _personService.Update(_person.Name, GetModel());
+                _personService.Update(originalName, GetModel());
             }
 
             _person.Name = Name;
@@ -101,7 +104,7 @@ namespace NBD2.ViewModel
             _person.MotherName = MotherName;
             _person.FatherName = FatherName;
 
-            OnSaved?.Invoke(this, new PersonCreateEditEventArgs{Person = _person});
+            OnSaved?.Invoke(this, new PersonCreateEditEventArgs {Person = _person, OriginalName = originalName});
         }
 
         private Person GetModel()
@@ -138,6 +141,7 @@ namespace NBD2.ViewModel
     public class PersonCreateEditEventArgs : EventArgs
     {
         public PersonViewModel Person { get; set; }
+        public string OriginalName { get; set; }
     }
 
     public enum Mode

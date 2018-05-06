@@ -15,6 +15,7 @@ namespace NBD2.ViewModel
         public PersonViewModel Father { get; set; }
         public string FatherName { get; set; }
         public ObservableCollection<PersonViewModel> Children { get; set; }
+        public bool IsSelected { get; set; }
 
         public Person GetModel()
         {

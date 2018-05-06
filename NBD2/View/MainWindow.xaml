@@ -11,10 +11,14 @@
         Title="MainWindow" Height="450" Width="800"
         WindowStartupLocation="CenterScreen"
         d:DataContext="{d:DesignInstance {x:Type viewModel:MainViewModel}}">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <ListView Grid.Row="0" ItemsSource="{Binding Persons}" SelectedItem="{Binding SelectedPerson, Mode=TwoWay}">
@@ -23,7 +27,7 @@
                     <GridViewColumn>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox />
+                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -116,5 +120,6 @@
             <ListView Grid.Column="1" ItemsSource="{Binding PossibleInheritors}"/>
         </Grid>
         <Button Grid.Row="2" Command="{Binding CreateCommand}">Dodaj osobę</Button>
+        <ListView Grid.Row="3" ItemsSource="{Binding CommonAncestors}" Visibility="{Binding CanShowCommonAncestors, Converter={StaticResource BooleanToVisibilityConverter}}" />
     </Grid>
 </Window>

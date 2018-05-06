@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -14,10 +14,12 @@ namespace NBD2.ViewModel
     {
         private readonly IPersonService _personService;
         private readonly TreeCreator _treeCreator;
-        public ObservableCollection<PersonViewModel> Persons { get; } = new ObservableCollection<PersonViewModel>();
+        public DeeplyObservableCollection<PersonViewModel> Persons { get; } = new DeeplyObservableCollection<PersonViewModel>();
         public IBidirectionalGraph<object, IEdge<object>> Graph { get; private set; }
         public PersonViewModel SelectedPerson { get; set; }
         public IEnumerable<string> PossibleInheritors { get; set; }
+        public bool CanShowCommonAncestors { get; set; }
+        public IEnumerable<string> CommonAncestors { get; set; }
 
         public ICommand CreateCommand { get; }
         public ICommand EditCommand { get; }
@@ -27,6 +29,7 @@ namespace NBD2.ViewModel
         {
             _personService = personService;
             _treeCreator = treeCreator;
+            Persons.ItemPropertyChanged += ItemOnPropertyChanged;
             CreateCommand = new RelayCommand(() =>
             {
                 var createViewModel = new PersonCreateEditViewModel(_personService);
@@ -78,6 +81,22 @@ namespace NBD2.ViewModel
                 Persons.Remove(p);
             });
             UpdateList();
+        }
+
+
+        private void ItemOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(PersonViewModel.IsSelected))
+            {
+                return;
+            }
+
+            var selectedPersons = Persons.Where(x => x.IsSelected).ToArray();
+            CanShowCommonAncestors = selectedPersons.Length == 2;
+            if (CanShowCommonAncestors)
+            {
+                CommonAncestors = _treeCreator.GetCommonAncestors(selectedPersons[0].Name, selectedPersons[1].Name);
+            }
         }
 
         private void UpdateList()
