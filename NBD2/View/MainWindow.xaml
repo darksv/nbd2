@@ -20,10 +20,17 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ListView Grid.Row="0" ItemsSource="{Binding Persons}" SelectedItem="{Binding SelectedPerson, Mode=TwoWay}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+            <Label>
+                <Hyperlink Command="{Binding CreateCommand}">Nowa osoba</Hyperlink>
+            </Label>
+        </StackPanel>
+        <ListView Grid.Column="0" Grid.Row="1" ItemsSource="{Binding Persons}" SelectedItem="{Binding SelectedPerson, Mode=TwoWay}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn>
@@ -98,30 +105,30 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <controls:GraphLayout
-                Grid.Column="0"
-                CreationTransition="{x:Null}"
-                DestructionTransition="{x:Null}"
-                Graph="{Binding Graph}"
-                LayoutAlgorithmType="Tree"
-                LayoutMode="Simple" IsAnimationEnabled="False">
-                <controls:GraphLayout.LayoutParameters>
-                    <tree:SimpleTreeLayoutParameters Direction="TopToBottom" VertexGap="50" />
-                </controls:GraphLayout.LayoutParameters>
-                <controls:GraphLayout.Resources>
-                    <Style TargetType="controls:VertexControl">
-                        <Setter Property="attachedBehaviours:DragBehaviour.IsDragEnabled" Value="False" />
-                    </Style>
-                </controls:GraphLayout.Resources>
-            </controls:GraphLayout>
-            <ListView Grid.Column="1" ItemsSource="{Binding PossibleInheritors}"/>
-        </Grid>
-        <Button Grid.Row="2" Command="{Binding CreateCommand}">Dodaj osobę</Button>
-        <ListView Grid.Row="3" ItemsSource="{Binding CommonAncestors}" Visibility="{Binding CanShowCommonAncestors, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <TabControl Grid.Column="1" Grid.Row="1">
+            <TabItem Header="Spadkobiercy">
+                <ListView ItemsSource="{Binding PossibleInheritors}" BorderBrush="{x:Null}" />
+            </TabItem>
+            <TabItem Header="Potomkowie">
+                <controls:GraphLayout
+                    CreationTransition="{x:Null}"
+                    DestructionTransition="{x:Null}"
+                    Graph="{Binding Graph}"
+                    LayoutAlgorithmType="Tree"
+                    LayoutMode="Simple" IsAnimationEnabled="False">
+                    <controls:GraphLayout.LayoutParameters>
+                        <tree:SimpleTreeLayoutParameters Direction="TopToBottom" VertexGap="50" />
+                    </controls:GraphLayout.LayoutParameters>
+                    <controls:GraphLayout.Resources>
+                        <Style TargetType="controls:VertexControl">
+                            <Setter Property="attachedBehaviours:DragBehaviour.IsDragEnabled" Value="False" />
+                        </Style>
+                    </controls:GraphLayout.Resources>
+                </controls:GraphLayout>
+            </TabItem>
+            <TabItem Header="Wspólni przodkowie" Visibility="{Binding CanShowCommonAncestors, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ListView ItemsSource="{Binding CommonAncestors}" BorderBrush="{x:Null}" />
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
