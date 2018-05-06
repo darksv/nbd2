@@ -37,7 +37,21 @@ namespace NBD2.ViewModel
             EditCommand = new RelayCommand<PersonViewModel>(p =>
             {
                 var editViewModel = new PersonCreateEditViewModel(p, _personService);
-                editViewModel.OnSaved += (s, e) => UpdateList();
+                editViewModel.OnSaved += (s, e) =>
+                {
+                    foreach (var personViewModel in Persons)
+                    {
+                        if (personViewModel.FatherName == e.OriginalName)
+                        {
+                            personViewModel.FatherName = e.Person.Name;
+                        }
+
+                        if (personViewModel.MotherName == e.OriginalName)
+                        {
+                            personViewModel.MotherName = e.Person.Name;
+                        }
+                    }
+                };
                 var window = new PersonCreateEdit(editViewModel);
                 window.ShowDialog();
             });
@@ -49,13 +63,20 @@ namespace NBD2.ViewModel
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question
                 );
-                if (result == MessageBoxResult.Yes)
+                if (result != MessageBoxResult.Yes)
                 {
-                    _personService.DeletePerson(p.Name);
-                    Persons.Remove(p);
+                    return;
                 }
-            });
 
+                _personService.DeletePerson(p.Name);
+                if (SelectedPerson == p)
+                {
+                    SelectedPerson = null;
+                    OnSelectedPersonChanged();
+                    OnPropertyChanged();
+                }
+                Persons.Remove(p);
+            });
             UpdateList();
         }
 
@@ -81,6 +102,7 @@ namespace NBD2.ViewModel
             if (SelectedPerson == null)
             {
                 Graph = null;
+                PossibleInheritors = null;
                 return;
             }
 
