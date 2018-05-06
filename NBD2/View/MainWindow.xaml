@@ -76,20 +76,20 @@
                     <GridViewColumn>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Command="{Binding DataContext.EditCommand, ElementName=LayoutRoot}"
-                                        CommandParameter="{Binding}">
-                                    Edytuj
-                                </Button>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn>
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Command="{Binding DataContext.DeleteCommand, ElementName=LayoutRoot}"
-                                        CommandParameter="{Binding}">
-                                    Usuń
-                                </Button>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label>
+                                        <Hyperlink Command="{Binding DataContext.EditCommand, ElementName=LayoutRoot}"
+                                                   CommandParameter="{Binding}">
+                                            Edytuj
+                                        </Hyperlink>
+                                    </Label>
+                                    <Label>
+                                        <Hyperlink Command="{Binding DataContext.DeleteCommand, ElementName=LayoutRoot}"
+                                                   CommandParameter="{Binding}">
+                                            Usuń
+                                        </Hyperlink>
+                                    </Label>
+                                </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
