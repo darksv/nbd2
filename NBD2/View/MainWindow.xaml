@@ -7,12 +7,14 @@
         xmlns:viewModel="clr-namespace:NBD2.ViewModel"
         xmlns:tree="clr-namespace:GraphSharp.Algorithms.Layout.Simple.Tree;assembly=GraphSharp"
         xmlns:attachedBehaviours="clr-namespace:WPFExtensions.AttachedBehaviours;assembly=WPFExtensions"
+        xmlns:util="clr-namespace:NBD2.Util"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800"
         WindowStartupLocation="CenterScreen"
         d:DataContext="{d:DesignInstance {x:Type viewModel:MainViewModel}}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <util:EnumToDisplayNameConverter x:Key="EnumToDisplayNameConverter" />
     </Window.Resources>
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
@@ -55,7 +57,7 @@
                     <GridViewColumn Header="Płeć">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Sex}" />
+                                <TextBlock Text="{Binding Sex, Converter={StaticResource EnumToDisplayNameConverter}}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
