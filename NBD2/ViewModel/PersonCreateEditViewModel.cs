@@ -12,6 +12,7 @@ namespace NBD2.ViewModel
     {
         private readonly IPersonService _personService;
         private readonly PersonViewModel _person;
+        private readonly TreeCreator _treeCreator;
         public string Name { get; set; }
         public Sex? Sex { get; set; }
         public DateTime? DateOfBirth { get; set; }
@@ -30,9 +31,10 @@ namespace NBD2.ViewModel
             public string Value { get; set; }
         }
 
-        public PersonCreateEditViewModel(IPersonService personService)
+        public PersonCreateEditViewModel(IPersonService personService, TreeCreator treeCreator)
         {
             _personService = personService;
+            _treeCreator = treeCreator;
             _person = new PersonViewModel();
 
             SaveCommand = new RelayCommand(Save, CanSave);
@@ -41,9 +43,10 @@ namespace NBD2.ViewModel
             UpdatePossibleParents();
         }
 
-        public PersonCreateEditViewModel(PersonViewModel person, IPersonService personService)
+        public PersonCreateEditViewModel(PersonViewModel person, IPersonService personService, TreeCreator treeCreator)
         {
             _personService = personService ?? throw new ArgumentNullException(nameof(personService));
+            _treeCreator = treeCreator;
             _person = person ?? throw new ArgumentNullException(nameof(person));
 
             Name = person.Name;
@@ -127,12 +130,52 @@ namespace NBD2.ViewModel
                 return false;
             }
 
-            if (Mode == Mode.Edit && Name == _person.Name)
+            if (Mode == Mode.Create || Mode == Mode.Edit && Name != _person.Name)
             {
-                return true;
+                if (_personService.IsNameTaken(Name))
+                {
+                    return false;
+                }
             }
 
-            return !_personService.IsNameTaken(Name);
+            if (MotherName != null)
+            {
+                if (!_treeCreator.CanBeMotherOf(_personService.Get(MotherName), GetModel()))
+                {
+                    return false;
+                }
+            }
+
+            if (FatherName != null)
+            {
+                if (!_treeCreator.CanBeFatherOf(_personService.Get(FatherName), GetModel()))
+                {
+                    return false;
+                }
+            }
+
+            if (Mode == Mode.Edit)
+            {
+                var children = _personService.GetChildrenOf(_person.Name);
+                var parent = GetModel();
+
+                if (Sex == Model.Sex.Female)
+                {
+                    if (children.Any(x => !_treeCreator.CanBeMotherOf(parent, x)))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (children.Any(x => !_treeCreator.CanBeFatherOf(parent, x)))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         public event EventHandler<PersonCreateEditEventArgs> OnSaved;

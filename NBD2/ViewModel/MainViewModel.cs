@@ -32,14 +32,14 @@ namespace NBD2.ViewModel
             Persons.ItemPropertyChanged += ItemOnPropertyChanged;
             CreateCommand = new RelayCommand(() =>
             {
-                var createViewModel = new PersonCreateEditViewModel(_personService);
+                var createViewModel = new PersonCreateEditViewModel(_personService, _treeCreator);
                 createViewModel.OnSaved += (s, e) => Persons.Add(e.Person);
                 var window = new PersonCreateEdit(createViewModel);
                 window.ShowDialog();
             });
             EditCommand = new RelayCommand<PersonViewModel>(p =>
             {
-                var editViewModel = new PersonCreateEditViewModel(p, _personService);
+                var editViewModel = new PersonCreateEditViewModel(p, _personService, _treeCreator);
                 editViewModel.OnSaved += (s, e) =>
                 {
                     foreach (var personViewModel in Persons)

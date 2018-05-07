@@ -135,6 +135,11 @@ namespace NBD2.Service
             }
         }
 
+        public Person Get(string name)
+        {
+            return _context.Query<Person>().FirstOrDefault(x => x.Name == name);
+        }
+
         public void Dispose()
         {
             _context?.Dispose();
