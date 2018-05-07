@@ -10,7 +10,6 @@ namespace NBD2.Service
         IEnumerable<Person> GetAll();
         void Update(string name, Person person);
         void DeletePerson(string name);
-        void CreateRelation(string parent, string child, RelationType relationType);
         IEnumerable<Person> GetChildrenOf(string parentName);
         IEnumerable<Person> GetDescendantsOf(string parentName);
         Person Get(string name);

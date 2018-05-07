@@ -91,25 +91,6 @@ namespace NBD2.Service
             _context.Commit();
         }
 
-        public void CreateRelation(string parent, string child, RelationType relationType)
-        {
-            var c = _context.Query<Person>(p => p.Name == child).FirstOrDefault();
-            if (c != null)
-            {
-                if (relationType == RelationType.Mother)
-                {
-                    c.MotherName = parent;
-                }
-                else
-                {
-                    c.FatherName = parent;
-                }
-
-                _context.Store(c);
-                _context.Commit();
-            }
-        }
-
         public IEnumerable<Person> GetChildrenOf(string parentName)
         {
             return _context.Query<Person>(p => p.MotherName == parentName || p.FatherName == parentName).ToArray();
