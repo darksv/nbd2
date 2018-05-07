@@ -25,6 +25,7 @@ namespace NBD2.Service
         public void Create(Person person)
         {
             _context.Store(person);
+            _context.Store(person.Children);
             _context.Commit();
         }
 
@@ -61,6 +62,13 @@ namespace NBD2.Service
                     child.MotherName = person.Name;
                     _context.Store(child);
                 }
+
+                foreach (var parent in _context.Query<Person>().Where(x => x.Children.Contains(name)))
+                {
+                    parent.Children.Remove(name);
+                    parent.Children.Add(person.Name);
+                    _context.Store(parent.Children);
+                }
             }
 
             _context.Store(originalPerson);
@@ -87,6 +95,12 @@ namespace NBD2.Service
                 _context.Store(child);
             }
 
+            foreach (var parent in _context.Query<Person>().Where(x => x.Children.Contains(name)))
+            {
+                parent.Children.Remove(name);
+                _context.Store(parent.Children);
+            }
+
             _context.Delete(person);
             _context.Commit();
         }
@@ -96,17 +110,17 @@ namespace NBD2.Service
             return _context.Query<Person>(p => p.MotherName == parentName || p.FatherName == parentName).ToArray();
         }
 
-        public IEnumerable<Person> GetDescendantsOf(string parentName)
+        public IEnumerable<Person> GetDescendantsOf(string person)
         {
             var queue = new Queue<string>();
-            queue.Enqueue(parentName);
+            queue.Enqueue(person);
             var emitted = new HashSet<Person>();
             while (queue.Any())
             {
                 var parent = queue.Dequeue();
                 foreach (var child in GetChildrenOf(parent))
                 {
-                    if (!emitted.Contains(child))
+                    if (!emitted.Contains(child) && child.Name != person)
                     {
                         yield return child;
                         emitted.Add(child);

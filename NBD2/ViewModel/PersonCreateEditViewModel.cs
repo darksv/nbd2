@@ -159,16 +159,14 @@ namespace NBD2.ViewModel
                 var children = _personService.GetChildrenOf(_person.Name);
                 var parent = GetModel();
 
-                if (Sex == Model.Sex.Female)
+                foreach (var child in children)
                 {
-                    if (children.Any(x => !_treeCreator.CanBeMotherOf(parent, x)))
+                    if (child.MotherName == _person.Name && !_treeCreator.CanBeMotherOf(parent, child))
                     {
                         return false;
                     }
-                }
-                else
-                {
-                    if (children.Any(x => !_treeCreator.CanBeFatherOf(parent, x)))
+
+                    if (child.FatherName == _person.Name && !_treeCreator.CanBeFatherOf(parent, child))
                     {
                         return false;
                     }

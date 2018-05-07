@@ -31,11 +31,10 @@ namespace NBD2.Service
 
         public IEnumerable<string> GetCommonAncestors(string firstPerson, string secondPerson)
         {
-            var persons = _personService.GetAll().ToDictionary(x => x.Name, x => x);
             var queue = new Queue<Person>();
 
             var firstAncestors  = new HashSet<Person>();
-            queue.Enqueue(persons[firstPerson]);
+            queue.Enqueue(_personService.Get(firstPerson));
             while (queue.Any())
             {
                 var child = queue.Dequeue();
@@ -43,17 +42,17 @@ namespace NBD2.Service
 
                 if (child.FatherName != null)
                 {
-                    queue.Enqueue(persons[child.FatherName]);
+                    queue.Enqueue(_personService.Get(child.FatherName));
                 }
 
                 if (child.MotherName != null)
                 {
-                    queue.Enqueue(persons[child.MotherName]);
+                    queue.Enqueue(_personService.Get(child.MotherName));
                 }
             }
 
             var secondAncestors = new HashSet<Person>();
-            queue.Enqueue(persons[secondPerson]);
+            queue.Enqueue(_personService.Get(secondPerson));
             while (queue.Any())
             {
                 var child = queue.Dequeue();
@@ -61,16 +60,16 @@ namespace NBD2.Service
 
                 if (child.FatherName != null)
                 {
-                    queue.Enqueue(persons[child.FatherName]);
+                    queue.Enqueue(_personService.Get(child.FatherName));
                 }
 
                 if (child.MotherName != null)
                 {
-                    queue.Enqueue(persons[child.MotherName]);
+                    queue.Enqueue(_personService.Get(child.MotherName));
                 }
             }
 
-            return firstAncestors.Intersect(secondAncestors).Select(x => x.Name);
+            return firstAncestors.Intersect(secondAncestors).Select(x => x.Name).Except(new[]{firstPerson, secondPerson});
         }
 
         public bool CanBeMotherOf(Person mother, Person child)
@@ -131,9 +130,8 @@ namespace NBD2.Service
 
         public bool CanBeParentOf(string parentName, string childName)
         {
-            var persons = _personService.GetAll().ToDictionary(x => x.Name, x => x);
             var stack = new Stack<Person>();
-            stack.Push(persons[parentName]);
+            stack.Push(_personService.Get(parentName));
             while (stack.Any())
             {
                 var person = stack.Pop();
@@ -144,12 +142,12 @@ namespace NBD2.Service
 
                 if (person.FatherName != null)
                 {
-                    stack.Push(persons[person.FatherName]);
+                    stack.Push(_personService.Get(person.FatherName));
                 }
 
                 if (person.MotherName != null)
                 {
-                    stack.Push(persons[person.MotherName]);
+                    stack.Push(_personService.Get(person.MotherName));
                 }
             }
 
