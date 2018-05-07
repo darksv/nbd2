@@ -75,7 +75,7 @@ namespace NBD2.Service
 
         public bool CanBeMotherOf(Person mother, Person child)
         {
-            if (mother.Sex == Sex.Male)
+            if (mother.Sex != Sex.Female)
             {
                 return false;
             }
@@ -103,7 +103,7 @@ namespace NBD2.Service
 
         public bool CanBeFatherOf(Person father, Person child)
         {
-            if (father.Sex == Sex.Female)
+            if (father.Sex != Sex.Male)
             {
                 return false;
             }
