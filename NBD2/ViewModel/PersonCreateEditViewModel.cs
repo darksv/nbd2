@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using NBD2.Model;
 using NBD2.Service;
@@ -56,7 +57,7 @@ namespace NBD2.ViewModel
             MotherName = person.MotherName;
             FatherName = person.FatherName;
 
-            SaveCommand = new RelayCommand(Save, CanSave);
+            SaveCommand = new RelayCommand(Save);
             Mode = Mode.Edit;
 
             UpdatePossibleParents();
@@ -90,6 +91,10 @@ namespace NBD2.ViewModel
 
         private void Save()
         {
+            if (!CanSave())
+            {
+                return;}
+
             string originalName = _person?.Name;
             if (Mode == Mode.Create)
             {
@@ -127,6 +132,7 @@ namespace NBD2.ViewModel
         {
             if (string.IsNullOrWhiteSpace(Name))
             {
+                MessageBox.Show("Nazwa jest wymagana!");
                 return false;
             }
 
@@ -134,6 +140,7 @@ namespace NBD2.ViewModel
             {
                 if (_personService.IsNameTaken(Name))
                 {
+                    MessageBox.Show("Nazwa jest zajęta!");
                     return false;
                 }
             }
@@ -142,6 +149,7 @@ namespace NBD2.ViewModel
             {
                 if (!_treeCreator.CanBeMotherOf(_personService.Get(MotherName), GetModel()))
                 {
+                    MessageBox.Show($"{MotherName} nie może być matką {Name}!");
                     return false;
                 }
             }
@@ -150,6 +158,7 @@ namespace NBD2.ViewModel
             {
                 if (!_treeCreator.CanBeFatherOf(_personService.Get(FatherName), GetModel()))
                 {
+                    MessageBox.Show($"{MotherName} nie może być ojcem {Name}!");
                     return false;
                 }
             }
@@ -163,11 +172,13 @@ namespace NBD2.ViewModel
                 {
                     if (child.MotherName == _person.Name && !_treeCreator.CanBeMotherOf(parent, child))
                     {
+                        MessageBox.Show($"Zmienione dane nie mogą być zgodne dla {child.Name}, który ma ustawioną matkę na aktualnie edytowaną osobę!");
                         return false;
                     }
 
                     if (child.FatherName == _person.Name && !_treeCreator.CanBeFatherOf(parent, child))
                     {
+                        MessageBox.Show($"Zmienione dane nie mogą być zgodne dla {child.Name}, który ma ustawionego ojca na aktualnie edytowaną osobę!");
                         return false;
                     }
                 }

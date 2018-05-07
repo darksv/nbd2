@@ -95,7 +95,7 @@ namespace NBD2.Service
                 _context.Store(child);
             }
 
-            foreach (var parent in _context.Query<Person>().Where(x => x.Children.Contains(name)))
+            foreach (var parent in _context.Query<Person>(x => x.Children.Contains(name)))
             {
                 parent.Children.Remove(name);
                 _context.Store(parent.Children);
