@@ -111,26 +111,6 @@ namespace NBD2.Service
             return _context.Query<Person>(p => p.MotherName == parentName || p.FatherName == parentName).ToArray();
         }
 
-        public IEnumerable<Person> GetDescendantsOf(string person)
-        {
-            var queue = new Queue<string>();
-            queue.Enqueue(person);
-            var emitted = new HashSet<Person>();
-            while (queue.Any())
-            {
-                var parent = queue.Dequeue();
-                foreach (var child in GetChildrenOf(parent))
-                {
-                    if (!emitted.Contains(child) && child.Name != person)
-                    {
-                        yield return child;
-                        emitted.Add(child);
-                    }
-                    queue.Enqueue(child.Name);
-                }
-            }
-        }
-
         public Person Get(string name)
         {
             return _context.Query<Person>().FirstOrDefault(x => x.Name == name);

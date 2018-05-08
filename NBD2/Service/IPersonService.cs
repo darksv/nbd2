@@ -11,7 +11,6 @@ namespace NBD2.Service
         void Update(string name, Person person);
         void DeletePerson(string name);
         IEnumerable<Person> GetChildrenOf(string parentName);
-        IEnumerable<Person> GetDescendantsOf(string person);
         Person Get(string name);
     }
 }

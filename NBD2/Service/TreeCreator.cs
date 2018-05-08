@@ -153,5 +153,48 @@ namespace NBD2.Service
 
             return true;
         }
+
+//        public IEnumerable<Person> GetDescendantsOf(string person)
+//        {
+//            var queue = new Queue<string>();
+//            queue.Enqueue(person);
+//            var emitted = new HashSet<Person>();
+//            while (queue.Any())
+//            {
+//                var parent = queue.Dequeue();
+//                foreach (var child in _personService.GetChildrenOf(parent))
+//                {
+//                    if (!emitted.Contains(child) && child.Name != person)
+//                    {
+//                        yield return child;
+//                        emitted.Add(child);
+//                    }
+//                    queue.Enqueue(child.Name);
+//                }
+//            }
+//        }
+
+        public IEnumerable<Person> GetPossibleInheritors(string person)
+        {
+            var queue = new Queue<string>();
+            queue.Enqueue(person);
+            while (queue.Any())
+            {
+                var parent = queue.Dequeue();
+                foreach (var child in _personService.GetChildrenOf(parent))
+                {
+                    if (child.DateOfDeath.HasValue)
+                    {
+
+                        queue.Enqueue(child.Name);
+                    }
+                    else
+                    {
+                        yield return child;
+
+                    }
+                }
+            }
+        }
     }
 }
