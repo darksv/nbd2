@@ -102,7 +102,8 @@ namespace NBD2.ViewModel
         private void UpdateList()
         {
             Persons.Clear();
-            foreach (var person in _personService.GetAll())
+            var persons = _personService.GetAll();
+            foreach (var person in persons)
             {
                 Persons.Add(new PersonViewModel
                 {

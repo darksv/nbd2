@@ -26,6 +26,21 @@ namespace NBD2.Service
         {
             _context.Store(person);
             _context.Store(person.Children);
+
+            if (person.MotherName != null)
+            {
+                var mother = Get(person.MotherName);
+                mother.Children.Add(person.Name);
+                _context.Store(mother.Children);
+            }
+
+            if (person.FatherName != null)
+            {
+                var father = Get(person.FatherName);
+                father.Children.Add(person.Name);
+                _context.Store(father.Children);
+            }
+
             _context.Commit();
         }
 
@@ -40,6 +55,34 @@ namespace NBD2.Service
             if (originalPerson == null)
             {
                 return;
+            }
+
+            if (originalPerson.FatherName != null)
+            {
+                var oldMother = _context.Query<Person>(x => x.Name == originalPerson.FatherName).First();
+                oldMother.Children.Remove(name);
+                _context.Store(oldMother.Children);
+            }
+
+            if (originalPerson.MotherName != null)
+            {
+                var oldFather = _context.Query<Person>(x => x.Name == originalPerson.MotherName).First();
+                oldFather.Children.Remove(name);
+                _context.Store(oldFather.Children);
+            }
+
+            if (person.MotherName != null)
+            {
+                var newMother = _context.Query<Person>(x => x.Name == person.MotherName).First();
+                newMother.Children.Add(name);
+                _context.Store(newMother.Children);
+            }
+
+            if (person.FatherName != null)
+            {
+                var newFather = _context.Query<Person>(x => x.Name == person.FatherName).First();
+                newFather.Children.Add(name);
+                _context.Store(newFather.Children);
             }
 
             originalPerson.Name = person.Name;
@@ -94,7 +137,6 @@ namespace NBD2.Service
                 child.MotherName = null;
                 _context.Store(child);
             }
-
 
             foreach (var parent in _context.Query<Person>(x => x.Children?.Contains(name) ?? false))
             {
