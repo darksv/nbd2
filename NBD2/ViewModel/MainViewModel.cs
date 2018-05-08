@@ -24,6 +24,7 @@ namespace NBD2.ViewModel
         public ICommand CreateCommand { get; }
         public ICommand EditCommand { get; }
         public ICommand DeleteCommand { get; }
+        public ICommand RefreshCommand { get; }
 
         public MainViewModel(IPersonService personService, TreeCreator treeCreator)
         {
@@ -54,6 +55,7 @@ namespace NBD2.ViewModel
                             personViewModel.MotherName = e.Person.Name;
                         }
                     }
+                    OnSelectedPersonChanged();
                 };
                 var window = new PersonCreateEdit(editViewModel);
                 window.ShowDialog();
@@ -78,7 +80,12 @@ namespace NBD2.ViewModel
                     OnSelectedPersonChanged();
                     OnPropertyChanged();
                 }
-                Persons.Remove(p);
+                UpdateList();
+            });
+            RefreshCommand = new RelayCommand(() =>
+            {
+                UpdateList();
+                OnSelectedPersonChanged();
             });
             UpdateList();
         }
@@ -119,38 +126,36 @@ namespace NBD2.ViewModel
 
         protected void OnSelectedPersonChanged()
         {
-            if (SelectedPerson == null)
-            {
-                Graph = null;
-                PossibleInheritors = null;
-                return;
-            }
+            PossibleInheritors = SelectedPerson == null ? null : _treeCreator.GetPossibleInheritors(SelectedPerson.Name).Select(x => x.Name);
 
             var graph = new BidirectionalGraph<object, IEdge<object>>();
-            graph.AddVertex(SelectedPerson);
-            foreach (var relation in _treeCreator.GetRelationsForTreeOfDescdendants(SelectedPerson.Name))
+            if (SelectedPerson != null)
             {
-                var parent = Persons.First(x => x.Name == relation.Item1);
-                var child = Persons.First(x => x.Name == relation.Item2);
-
-                if (!graph.ContainsVertex(parent))
+                graph.AddVertex(SelectedPerson);
+                foreach (var relation in _treeCreator.GetRelationsForTreeOfDescdendants(SelectedPerson.Name))
                 {
-                    graph.AddVertex(parent);
-                }
+                    var parent = Persons.First(x => x.Name == relation.Item1);
+                    var child = Persons.First(x => x.Name == relation.Item2);
 
-                if (!graph.ContainsVertex(child))
-                {
-                    graph.AddVertex(child);
-                }
+                    if (!graph.ContainsVertex(parent))
+                    {
+                        graph.AddVertex(parent);
+                    }
 
-                graph.AddEdge(new Edge<object>(parent, child));
+                    if (!graph.ContainsVertex(child))
+                    {
+                        graph.AddVertex(child);
+                    }
+
+                    graph.AddEdge(new Edge<object>(parent, child));
+                }
             }
 
             Graph = graph;
 //            PossibleInheritors = _treeCreator.GetDescendantsOf(SelectedPerson.Name)
 //                .Where(x => !x.DateOfDeath.HasValue)
 //                .Select(x => x.Name);
-            PossibleInheritors = _treeCreator.GetPossibleInheritors(SelectedPerson.Name).Select(x => x.Name);
+            
         }
     }
 }

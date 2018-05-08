@@ -9,13 +9,16 @@
         xmlns:attachedBehaviours="clr-namespace:WPFExtensions.AttachedBehaviours;assembly=WPFExtensions"
         xmlns:util="clr-namespace:NBD2.Util"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
+        Title="Drzewo genealogiczne" Height="450" Width="800"
         WindowStartupLocation="CenterScreen"
         d:DataContext="{d:DesignInstance {x:Type viewModel:MainViewModel}}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <util:EnumToDisplayNameConverter x:Key="EnumToDisplayNameConverter" />
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
+    </Window.InputBindings>
     <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
