@@ -38,7 +38,7 @@ namespace NBD2.ViewModel
             _treeCreator = treeCreator;
             _person = new PersonViewModel();
 
-            SaveCommand = new RelayCommand(Save, CanSave);
+            SaveCommand = new RelayCommand(Save);
             Mode = Mode.Create;
 
             UpdatePossibleParents();
@@ -158,7 +158,7 @@ namespace NBD2.ViewModel
             {
                 if (!_treeCreator.CanBeFatherOf(_personService.Get(FatherName), GetModel()))
                 {
-                    MessageBox.Show($"{MotherName} nie może być ojcem {Name}!");
+                    MessageBox.Show($"{FatherName} nie może być ojcem {Name}!");
                     return false;
                 }
             }
@@ -172,13 +172,13 @@ namespace NBD2.ViewModel
                 {
                     if (child.MotherName == _person.Name && !_treeCreator.CanBeMotherOf(parent, child))
                     {
-                        MessageBox.Show($"Zmienione dane nie mogą być zgodne dla {child.Name}, który ma ustawioną matkę na aktualnie edytowaną osobę!");
+                        MessageBox.Show($"Nowe dane kolidują z istniejącymi relacjami edytowanej osoby ({Name} jest matką {child.Name}).");
                         return false;
                     }
 
                     if (child.FatherName == _person.Name && !_treeCreator.CanBeFatherOf(parent, child))
                     {
-                        MessageBox.Show($"Zmienione dane nie mogą być zgodne dla {child.Name}, który ma ustawionego ojca na aktualnie edytowaną osobę!");
+                        MessageBox.Show($"Nowe dane kolidują z istniejącymi relacjami edytowanej osoby ({Name} jest ojcem {child.Name}).");
                         return false;
                     }
                 }
